@@ -1,0 +1,4 @@
+C:\gamedev\DMP_Translator\Tools\obj\Release\net6.0\CacheConverter.GeneratedMSBuildEditorConfig.editorconfig
+C:\gamedev\DMP_Translator\Tools\obj\Release\net6.0\CacheConverter.AssemblyInfoInputs.cache
+C:\gamedev\DMP_Translator\Tools\obj\Release\net6.0\CacheConverter.AssemblyInfo.cs
+C:\gamedev\DMP_Translator\Tools\obj\Release\net6.0\CacheConverter.csproj.CoreCompileInputs.cache
