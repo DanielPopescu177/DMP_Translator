@@ -471,7 +471,7 @@ CUSTOM_FONT_PATH=
             }
         }
 
-        public override void OnUpdate()
+        public override void OnLateUpdate()
         {
             if (UnityEngine.Input.GetKeyDown(KeyCode.F8))
             {
@@ -498,7 +498,7 @@ CUSTOM_FONT_PATH=
                 TranslateAllTexts();
             }
 
-            if (autoTranslateEnabled && Time.frameCount % 30 == 0) // 120 → 30 (빠르게)
+            if (autoTranslateEnabled && Time.frameCount % 2 == 0) // 120 → 30 (빠르게)
             {
                 TranslateAllTexts();
             }
@@ -634,6 +634,7 @@ CUSTOM_FONT_PATH=
                     var tmps = UnityEngine.Object.FindObjectsOfType(tmpType);
                     
                     // TMP 텍스트 배치 처리 (150개씩 나눠서 번역)
+                    // Text batch processing (translation divided into 150 pieces)
                     const int BATCH_SIZE = 150;
                     int totalCount = tmps.Length;
                     
@@ -645,28 +646,32 @@ CUSTOM_FONT_PATH=
                     else
                     {
                         // 현재 배치 범위 계산
+                        // Initialize batch index if no text
                         int startIndex = currentBatchIndex * BATCH_SIZE;
                         int endIndex = Math.Min(startIndex + BATCH_SIZE, totalCount);
                         
                         if (startIndex >= totalCount)
                         {
                             // 모든 배치 완료, 처음으로 돌아가기
+                            // All batches completed, return to beginning
                             currentBatchIndex = 0;
                             startIndex = 0;
                             endIndex = Math.Min(BATCH_SIZE, totalCount);
                         }
                         
-                        MelonLogger.Msg($"TMP 번역: {startIndex+1}~{endIndex}/{totalCount}");
+                        //MelonLogger.Msg($"TMP 번역: {startIndex+1}~{endIndex}/{totalCount}");
                         
                         var textProp = tmpType.GetProperty("text");
                         var fontProp = tmpType.GetProperty("font");
                         
                         // 현재 배치만 처리
+                        // Process only the current batch
                         for (int i = startIndex; i < endIndex; i++)
                         {
                             try
                             {
                                 // 인덱스 범위 체크
+                                // Index range check
                                 if (i >= tmps.Length)
                                     break;
                                     
@@ -677,6 +682,7 @@ CUSTOM_FONT_PATH=
                                 var comp = tmp.TryCast<Component>();
                             
                             // 오브젝트 유효성 체크
+                            // Object validity check
                             if (comp == null || !comp.gameObject)
                                 continue;
                             if (!comp.gameObject.activeInHierarchy)
@@ -707,9 +713,11 @@ CUSTOM_FONT_PATH=
                                     if (!string.IsNullOrEmpty(result) && result != original)
                                     {
                                         // 1. 먼저 텍스트 변경
+                                                // 1. Change the text first
                                         try
                                         {
                                             // 모든 단계마다 null 체크
+                                                    // null check at every step
                                             if (tmp == null || comp == null || comp.gameObject == null)
                                                 continue;
                                             if (!comp.gameObject.activeInHierarchy)
@@ -720,15 +728,18 @@ CUSTOM_FONT_PATH=
                                         catch
                                         {
                                             // 텍스트 변경 실패, 건너뛰기
+                                                    // Text change failed, skipped
                                             continue;
                                         }
                                         
                                         // 2. 폰트 적용 (텍스트 변경 후에!)
+                                                // 2. Apply font (after changing text!)
                                         if (koreanTMPFont != null && fontProp != null)
                                         {
                                             try
                                             {
                                                 // 다시 한번 null 체크
+                                                        // Check null again
                                                 if (tmp == null || comp == null || comp.gameObject == null)
                                                     continue;
                                                 if (!comp.gameObject.activeInHierarchy)
@@ -743,14 +754,17 @@ CUSTOM_FONT_PATH=
                                             catch
                                             {
                                                 // 폰트 적용 실패, 계속 진행
+                                                        // Font application failed, continue
                                             }
                                         }
                                         
                                         // TMP UI 설정 적용
+                                        // TMP UI Apply settings
                                         List<string> appliedSettings = new List<string>();
                                         try
                                         {
                                             // Character Spacing 조정 (글자 겹침 방지)
+                                            // Character Spacing Adjustment (avoid overlapping letters)
                                             var characterSpacingProp = tmpType.GetProperty("characterSpacing");
                                             if (characterSpacingProp != null && characterSpacingProp.CanWrite)
                                             {
@@ -773,6 +787,7 @@ CUSTOM_FONT_PATH=
                                             }
                                             
                                             // Auto Sizing 설정
+                                            // Auto Sizing setting
                                             if (enableAutoSizing)
                                             {
                                                 var enableAutoSizingProp = tmpType.GetProperty("enableAutoSizing");
@@ -783,21 +798,22 @@ CUSTOM_FONT_PATH=
                                                 }
                                                 
                                                 // Auto Sizing 범위 설정 (선택사항)
+                                                // Auto Sizing Set range (optional)
                                                 var fontSizeMinProp = tmpType.GetProperty("fontSizeMin");
                                                 var fontSizeMaxProp = tmpType.GetProperty("fontSizeMax");
                                                 if (fontSizeMinProp != null && fontSizeMinProp.CanWrite)
                                                 {
-                                                    fontSizeMinProp.SetValue(tmp, 10f); // 최소 크기
+                                                    fontSizeMinProp.SetValue(tmp, 10f); // 최소 크기 / minimum size
                                                 }
                                                 if (fontSizeMaxProp != null && fontSizeMaxProp.CanWrite)
                                                 {
-                                                    fontSizeMaxProp.SetValue(tmp, 72f); // 최대 크기
+                                                    fontSizeMaxProp.SetValue(tmp, 72f); // 최대 크기 / maximum size
                                                 }
                                             }
                                         }
                                         catch (System.Exception e)
                                         {
-                                            MelonLogger.Warning($"TMP UI 설정 적용 실패: {e.Message}");
+                                            MelonLogger.Warning($"TMP UI 설정 적용 실패 / Failed to apply settings: {e.Message}");
                                         }
                                         
                                         // TMP 강제 업데이트 (글자 깨짐 방지)
@@ -862,7 +878,7 @@ CUSTOM_FONT_PATH=
             }
             catch (System.Exception e)
             {
-                MelonLogger.Error($"번역 중 오류: {e.Message}");
+                MelonLogger.Error($"번역 중 오류 / Error during translation: {e.Message}");
             }
             finally
             {
